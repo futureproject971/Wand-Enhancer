@@ -41,7 +41,11 @@ function contentTypeFor(filePath: string) {
     }
 }
 
-function getAdvertisedUrls(port: number) {
+function getAdvertisedUrls(port: number, host: string = '127.0.0.1') {
+    if (host !== '0.0.0.0' && host !== '::') {
+        const authority = host.includes(':') ? `[${host.replace(/^\[|\]$/g, '')}]` : host;
+        return [`http://${authority}:${port}${REMOTE_BASE_PATH}`];
+    }
     const candidates: { index: number; score: number; url: string }[] = [];
     const interfaces = os.networkInterfaces();
     let index = 0;

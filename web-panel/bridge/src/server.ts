@@ -86,6 +86,7 @@ function createBridgeServer(options: BridgeOptions = {}) {
         clients,
         log,
         getServerInfo: () => ({
+            port,
             advertisedUrls,
             listening,
             remoteUrl: globalThis.__wandRemoteBridgeUrl,
@@ -94,7 +95,7 @@ function createBridgeServer(options: BridgeOptions = {}) {
 
     function setAdvertisedPort(nextPort: number) {
         port = nextPort;
-        advertisedUrls = getAdvertisedUrls(port);
+        advertisedUrls = getAdvertisedUrls(port, host);
         globalThis.__wandRemoteBridgeUrl =
             advertisedUrls.find((entry: string) => !entry.includes('localhost')) ||
             advertisedUrls[0];

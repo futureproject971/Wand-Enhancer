@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WandEnhancer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("WG Enhancer")]
+[assembly: AssemblyDescription("WORLD GAMES client utility")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("WandEnhancer")]
-[assembly: AssemblyCopyright("Copyright ©  2025")]
+[assembly: AssemblyCompany("WORLD GAMES")]
+[assembly: AssemblyProduct("WG Enhancer")]
+[assembly: AssemblyCopyright("Copyright © WORLD GAMES 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

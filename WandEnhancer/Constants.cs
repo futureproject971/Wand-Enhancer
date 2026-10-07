@@ -5,6 +5,8 @@ namespace WandEnhancer
 {
     public static class Constants
     {
+        public const string DisplayName = "WG Enhancer";
+        public const string CompanyName = "WORLD GAMES";
         public const string RepoName = "Wand-Enhancer";
         public const string Owner = "k1tbyte";
         public static readonly string RepositoryUrl = $"https://github.com/{Owner}/{RepoName}";

@@ -42,6 +42,8 @@ const { sendJson } = require('./websocket-codec') as {
     ) => void;
 };
 
+const { BRIDGE_PROTOCOL_VERSION } = require('./constants');
+
 type BridgeStateSnapshot = { trainerMeta: TrainerMetaPayload; trainerValues: TrainerValuesPayload };
 
 type BridgeStateOptions = {
@@ -172,6 +174,10 @@ function createBridgeState({ clients, log, getServerInfo }: BridgeStateOptions) 
         const serverInfo = getServerInfo();
         return {
             ok: serverInfo.listening,
+            protocolVersion: BRIDGE_PROTOCOL_VERSION,
+            port: serverInfo.port,
+            installedAppsReady: currentInstalledApps !== null,
+            gameStatusReady: currentGameStatus !== null,
             trainerId: currentSnapshot?.trainerMeta?.trainer?.trainerId || null,
             gameSessionState: currentGameStatus?.session?.state || 'idle',
             gameSessionEvent: currentGameStatus?.session?.event || 'snapshot',
