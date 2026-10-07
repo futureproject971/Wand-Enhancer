@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WandEnhancer.Core;
+using WandEnhancer.Core.Auth;
 using WandEnhancer.Core.Patching.Strategies;
 using WandEnhancer.Models;
 using WandEnhancer.Utils;
@@ -28,13 +29,24 @@ namespace WandEnhancer
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-            if (TryLaunchMode(args))
-                return;
-
-            bool startupFailed = StartupLog.Exists(entry => entry.Value == ELogType.Error);
-
             var application = new App();
             application.InitializeComponent();
+            application.ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+
+            // Keep authentication in front of both the normal UI and deployed launch mode.
+            if (!AuthGate.EnsureAuthenticated())
+            {
+                App.Shutdown();
+                return;
+            }
+
+            if (TryLaunchMode(args))
+            {
+                App.Shutdown();
+                return;
+            }
+
+            bool startupFailed = StartupLog.Exists(entry => entry.Value == ELogType.Error);
             var window = new MainWindow();
 
             // Launch mode is headless, so replay errors into the UI if startup failed.
@@ -42,6 +54,7 @@ namespace WandEnhancer
                 window.Loaded += (sender, e) => BringToFront(window);
 
             application.MainWindow = window;
+            application.ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
             application.Run();
         }
 
@@ -59,7 +72,7 @@ namespace WandEnhancer
 
             var patchConfig = Enhancer.LoadAutoPatchConfig(myDir);
 
-            LauncherLog.Open(myDir, $"WandEnhancer {Constants.Version} build {Constants.Build} | " +
+            LauncherLog.Open(myDir, $"{Constants.DisplayName} {Constants.Version} build {Constants.Build} | " +
                                     $"patches {DescribePatches(patchConfig)} | {myExe}" +
                                     (forwardedArgs == null ? "" : $" | args {forwardedArgs}"));
 
@@ -205,7 +218,7 @@ namespace WandEnhancer
             var error = e.ExceptionObject as Exception;
             MessageBox.Show(
                 error?.Message ?? e.ExceptionObject?.ToString() ?? "Unknown error",
-                Constants.RepoName,
+                Constants.DisplayName,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
             Environment.Exit(1);

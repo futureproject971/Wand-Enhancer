@@ -8,13 +8,12 @@
         <ProjectGuid>{106D3E44-ECBB-4EF3-84B2-5FC6BCF77727}</ProjectGuid>
         <OutputType>WinExe</OutputType>
         <RootNamespace>WandEnhancer</RootNamespace>
-        <AssemblyName>WandEnhancer</AssemblyName>
+        <AssemblyName>WGEnhancer</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
         <WarningLevel>4</WarningLevel>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <ApplicationIcon>..\assets\appicon.ico</ApplicationIcon>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>x64</PlatformTarget>
@@ -57,6 +56,8 @@
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
         <Reference Include="System.Drawing" Condition="'$(EnableUpdateNotifications)' == 'true'" />
+        <Reference Include="System.Net.Http" />
+        <Reference Include="System.Security" />
         <Reference Include="System.Windows.Forms" />
         <Reference Include="System.Xml" />
         <Reference Include="System.Xaml">
@@ -75,6 +76,13 @@
         <Compile Include="Converters\BaseBooleanConverter.cs" />
         <Compile Include="Converters\ToVisibilityConverter.cs" />
         <Compile Include="Core\ELogType.cs" />
+        <Compile Include="Core\Auth\AuthGate.cs" />
+        <Compile Include="Core\Auth\AuthResult.cs" />
+        <Compile Include="Core\Auth\AuthSession.cs" />
+        <Compile Include="Core\Auth\VisionAuthConfig.cs" />
+        <Compile Include="Core\Auth\HardwareId.cs" />
+        <Compile Include="Core\Auth\VisionAuthService.cs" />
+        <Compile Include="Core\Auth\LicenseStore.cs" />
         <Compile Include="Core\Enhancer.cs" />
         <Compile Include="Core\EnhancerConfig.cs" />
         <Compile Include="Core\LauncherLog.cs" />
@@ -115,6 +123,9 @@
         <Compile Include="View\Controls\PopupHost.xaml.cs">
           <DependentUpon>PopupHost.xaml</DependentUpon>
         </Compile>
+        <Compile Include="View\Auth\LoginWindow.xaml.cs">
+          <DependentUpon>LoginWindow.xaml</DependentUpon>
+        </Compile>
         <Compile Include="View\MainWindow\Logs.cs" />
         <Compile Include="View\MainWindow\MainWindow.xaml.cs" />
         <Compile Include="View\MainWindow\IShellView.cs" />
@@ -145,6 +156,7 @@
         <Page Include="Style\ColorScheme.xaml" />
         <Page Include="Style\Icons.xaml" />
         <Page Include="Style\Styles.xaml" />
+        <Page Include="View\Auth\LoginWindow.xaml" />
         <Page Include="View\Controls\PopupHost.xaml" />
         <Page Include="View\MainWindow\MainWindow.xaml" />
         <Page Include="View\Popups\PatchVectorsPopup.xaml" />
@@ -174,6 +186,8 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include="Style\Inter_18pt-Regular.ttf" />
+      <Resource Include="Assets\Branding\world-games-icon.png" />
+      <Resource Include="Assets\Branding\world-games-logo.png" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\AsarSharp\AsarSharp.csproj">
@@ -198,6 +212,20 @@
         <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
       </PropertyGroup>
       <Error Condition="!Exists('..\packages\ILRepack.2.0.41\build\ILRepack.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILRepack.2.0.41\build\ILRepack.props'))" />
+    </Target>
+
+    <Target Name="StampVisionAuth" BeforeTargets="CoreCompile">
+        <PropertyGroup>
+            <VisionLoaderToken>$([System.Environment]::GetEnvironmentVariable('WG_VISION_LOADER_TOKEN'))</VisionLoaderToken>
+            <VisionAuthBuildConfigFile>$(IntermediateOutputPath)VisionAuthBuildConfig.cs</VisionAuthBuildConfigFile>
+        </PropertyGroup>
+
+        <WriteLinesToFile File="$(VisionAuthBuildConfigFile)" Overwrite="true" WriteOnlyWhenDifferent="true"
+                          Lines="namespace WandEnhancer.Core.Auth { internal static class VisionAuthBuildConfig { public const string LoaderToken = &quot;$(VisionLoaderToken)&quot;%3B } }" />
+
+        <ItemGroup>
+            <Compile Include="$(VisionAuthBuildConfigFile)" />
+        </ItemGroup>
     </Target>
 
     <!-- Which commit a binary was built from. AssemblyVersion is pinned to the release tag, so

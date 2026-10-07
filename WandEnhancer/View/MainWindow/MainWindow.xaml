@@ -7,7 +7,7 @@
         xmlns:controls="clr-namespace:WandEnhancer.View.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainWindowVm}"
-        Title="WandEnhancer"
+        Title="WG Enhancer"
         Height="510" MaxHeight="510"
         Width="780" MaxWidth="780" 
         Opacity="0.97"
@@ -27,18 +27,19 @@
             <Grid Background="Transparent" VerticalAlignment="Top"
                   MouseLeftButtonDown="OnDragMove" Height="55">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="25 0 0 0">
-                    <Viewbox VerticalAlignment="Center" Width="32" Height="32">
-                        <Path 
-                            Fill="White" Data="{StaticResource Logo}"/>
-                    </Viewbox>
-                    <TextBlock Foreground="{DynamicResource Foreground}"
-                               FontWeight="SemiBold" Opacity="0.9"
-                               VerticalAlignment="Center"
-                               FontSize="18" Margin="10 0 0 0">
-                        <Bold>
-                            WandEnhancer 
-                        </Bold>
-                    </TextBlock>
+                    <Image Width="46"
+                           Height="30"
+                           Stretch="Uniform"
+                           Source="/Assets/Branding/world-games-icon.png"/>
+                    <StackPanel Margin="10 0 0 0" VerticalAlignment="Center">
+                        <TextBlock Foreground="{DynamicResource Foreground}"
+                                   FontWeight="SemiBold" Opacity="0.95"
+                                   FontSize="17"
+                                   Text="WG ENHANCER"/>
+                        <TextBlock Foreground="{DynamicResource MutedForeground}"
+                                   FontSize="9"
+                                   Text="WORLD GAMES"/>
+                    </StackPanel>
                     <TextBlock x:Name="VersionLabel" VerticalAlignment="Bottom"
                                Opacity="0.7" FontSize="10" Margin="5 0 0 5"
                                Foreground="{DynamicResource Foreground}">
@@ -215,30 +216,15 @@
                                 Content="{DynamicResource mw_restore}"/>
                     </Grid>
                 </StackPanel>
-
-
-                
                 <DockPanel Grid.Row="2" Margin="10 0 10 10">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" 
-                                Cursor="Hand" 
-                                HorizontalAlignment="Left"
-                                MouseDown="OpenSourceClicked" 
-                                Background="Transparent">
-                        <Viewbox VerticalAlignment="Center" Width="32" Height="32">
-                            <Path 
-                                Fill="White" Data="{StaticResource GitHub}"/>
-                        </Viewbox>
-                        <Grid>
-                            <TextBlock Margin="8 0 0 0"  FontSize="10" Foreground="{DynamicResource AccentForeground}">
-                                <Hyperlink Foreground="{DynamicResource AccentForeground}"><Run Text="{DynamicResource mw_source_code}"/></Hyperlink>
-                                <LineBreak/>
-                                <Run Text="{DynamicResource mw_made_by}"/>
-                                
-                                
-                                <LineBreak/>
-                                <Run Foreground="{DynamicResource MutedForeground}" Text="{DynamicResource mw_star_hint}"/>
-                            </TextBlock>
-                        </Grid>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock Foreground="{DynamicResource Foreground}"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Text="WORLD GAMES"/>
+                        <TextBlock Foreground="{DynamicResource MutedForeground}"
+                                   FontSize="9"
+                                   Text="WG ENHANCER"/>
                     </StackPanel>
                 </DockPanel>
             </Grid>

@@ -107,7 +107,7 @@ Invoke-Step 'Build solution' {
     & $msbuild $solutionPath @buildArgs /t:Build
 }
 
-$assemblyPath = Join-Path $repoRoot "WandEnhancer\bin\$Configuration\WandEnhancer.exe"
+$assemblyPath = Join-Path $repoRoot "WandEnhancer\bin\$Configuration\WGEnhancer.exe"
 Invoke-Step 'Test desktop patch state and interop' {
     & (Join-Path $repoRoot 'scripts\test-desktop.ps1') `
         -AssemblyPath $assemblyPath `

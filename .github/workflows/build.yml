@@ -10,11 +10,13 @@ on:
         default: false
   pull_request:
   push:
-    branches: [master, 'feature/rc_*']
+    branches: [master, 'feature/rc_*', 'wg-rebrand-keyauth']
 
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      WG_VISION_LOADER_TOKEN: ${{ secrets.VISION_LOADER_TOKEN }}
     permissions:
       contents: read
 
@@ -31,6 +33,15 @@ jobs:
           cache: pnpm
           cache-dependency-path: web-panel/pnpm-lock.yaml
 
+      - name: Validate Vision Auth configuration
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WG_VISION_LOADER_TOKEN)) {
+            throw "VISION_LOADER_TOKEN secret is missing or empty."
+          }
+          Write-Host "Vision Auth loader token is present."
+
       - name: Build unsigned executable
         shell: pwsh
         run: |
@@ -43,8 +54,8 @@ jobs:
       - name: Upload unsigned executable
         uses: actions/upload-artifact@v6
         with:
-          name: WandEnhancer-unsigned
-          path: WandEnhancer/bin/Release/WandEnhancer.exe
+          name: WGEnhancer-unsigned
+          path: WandEnhancer/bin/Release/WGEnhancer.exe
           if-no-files-found: error
 
       # The published artifact is always the offline build; this only proves the
