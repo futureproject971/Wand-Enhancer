@@ -208,34 +208,49 @@ namespace WandEnhancer.Core.Auth
         private static bool IsPermanentFailure(string message, HttpStatusCode status)
         {
             string lower = (message ?? string.Empty).ToLowerInvariant();
+            if ((int)status >= 500 || (int)status == 429 || IsLoaderFailure(lower))
+                return false;
 
-            return status == HttpStatusCode.Unauthorized ||
-                   status == HttpStatusCode.Forbidden ||
-                   lower.Contains("invalid") ||
-                   lower.Contains("expired") ||
+            return lower.Contains("expired") ||
                    lower.Contains("already linked") ||
                    lower.Contains("hwid") ||
-                   lower.Contains("ban");
+                   lower.Contains("banned") ||
+                   ((lower.Contains("license") || lower.Contains("key")) &&
+                    (lower.Contains("invalid") || lower.Contains("not found")));
+        }
+
+        private static bool IsLoaderFailure(string lower)
+        {
+            return lower.Contains("loader") || lower.Contains("token") || lower.Contains("bearer");
         }
 
         private static string FriendlyMessage(string message, HttpStatusCode status)
         {
             string lower = (message ?? string.Empty).ToLowerInvariant();
+            string reason;
 
-            if (lower.Contains("hwid") || lower.Contains("already linked"))
-                return "Licença já vinculada a outro HWID ou HWID incompatível.";
-            if (lower.Contains("expired"))
-                return "Licença expirada.";
-            if (lower.Contains("ban"))
-                return "Licença bloqueada.";
-            if (lower.Contains("invalid") || lower.Contains("not found"))
-                return "Key inválida.";
-            if (status == HttpStatusCode.Unauthorized || status == HttpStatusCode.Forbidden)
-                return "Vision Auth recusou a autenticação do loader.";
+            // Never echo the response body: it can contain credentials or internal details.
+            // A status alone cannot identify whether the server refused loader or license.
+            if ((int)status >= 500)
+                reason = "erro no servidor de autenticação.";
+            else if ((int)status == 429)
+                reason = "limite de tentativas. Aguarde e tente novamente.";
+            else if (IsLoaderFailure(lower))
+                reason = "autenticação do loader recusada.";
+            else if (lower.Contains("hwid") || lower.Contains("already linked"))
+                reason = "Licença já vinculada a outro HWID ou HWID incompatível.";
+            else if (lower.Contains("expired"))
+                reason = "Licença expirada.";
+            else if (lower.Contains("banned"))
+                reason = "Licença bloqueada.";
+            else if (lower.Contains("invalid") || lower.Contains("not found"))
+                reason = "Key inválida.";
+            else if (status == HttpStatusCode.Unauthorized || status == HttpStatusCode.Forbidden)
+                reason = "autorização recusada. Verifique a configuração do loader.";
+            else
+                reason = "solicitação de licença recusada.";
 
-            return string.IsNullOrWhiteSpace(message)
-                ? "Vision Auth recusou a licença."
-                : message;
+            return "Vision Auth: HTTP " + (int)status + " | " + reason;
         }
     }
 }

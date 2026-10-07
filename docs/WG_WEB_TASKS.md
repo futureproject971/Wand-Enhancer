@@ -22,7 +22,11 @@ quando a rodada estiver validada. Preservar LICENSE, backups e restore.
 
 Bloqueio observado: a segunda tentativa do run falha por token ausente/vazio.
 O print enviado depois mostra secret `WG_VISION_LOADER_TOKEN`, enquanto o workflow
-lia `VISION_LOADER_TOKEN`. O fallback foi corrigido localmente; aguarda CI.
+lia `VISION_LOADER_TOKEN`. O fallback passou no CI push `37561759904`, que gerou Release.
+O teste do usuário mostrou recusa de autorização (401/403) ao inserir a key;
+a validação real da licença segue pendente. Isso não prova token inválido isoladamente.
+Se ambos os secrets estiverem cadastrados, `VISION_LOADER_TOKEN` tem prioridade.
+Atualizar secret exige recompilar e baixar o artefato novo; não muda EXEs antigos.
 O artefato do run `37554113956` não prova Vision: guard skipped no evento PR.
 O token pode ser fornecido por ambiente em runtime, mas isso não valida o artefato
 distribuível com configuração de build. Não armazenar secrets nesta documentação.
@@ -72,3 +76,15 @@ Se invisibilidade não puder ser garantida, abortar e mostrar:
 Não há teste de engine/WPF/WebView2 neste ambiente Linux e não há instalação Wand.
 Nenhum controle real de jogo ou invisibilidade foi comprovado. A implementação
 atual cobre preparação do bridge, documentação e testes locais.
+
+## Rodada de diagnóstico Vision
+
+- [x] Incluir código HTTP e descrição controlada em erros de resposta do servidor.
+- [x] Impedir reprodução de corpo bruto/token/key no diagnóstico de falha.
+- [x] Preservar licença salva em recusa genérica de autorização/erro do loader.
+- [x] Adicionar 14 casos de diagnóstico ao build Windows, sem requests nem secrets reais.
+- [ ] Confirmar build e casos de diagnóstico no CI desta rodada.
+- [ ] Testar o novo EXE contra Vision real e obter confirmação de licença válida.
+
+O teste de mensagem 401/403 não substitui a verificação do token no backend.
+Nenhum secret foi lido, alterado ou impresso pelo agente nesta rodada.

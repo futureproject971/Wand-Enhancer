@@ -108,6 +108,9 @@ Invoke-Step 'Build solution' {
 }
 
 $assemblyPath = Join-Path $repoRoot "WandEnhancer\bin\$Configuration\WGEnhancer.exe"
+Invoke-Step 'Test Vision Auth diagnostics' {
+    & (Join-Path $repoRoot 'scripts\test-vision-auth.ps1') -AssemblyPath $assemblyPath
+}
 Invoke-Step 'Test desktop patch state and interop' {
     & (Join-Path $repoRoot 'scripts\test-desktop.ps1') `
         -AssemblyPath $assemblyPath `
