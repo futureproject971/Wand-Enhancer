@@ -3,6 +3,50 @@ import { describe, expect, it } from 'vitest';
 import { WebSocket as NodeWebSocket } from 'ws';
 
 describe('production bridge runtime', () => {
+    it('uses loopback by default and advertises only its reachable local URL', async () => {
+        const bridge = require('../../dist/bridge.cjs');
+        const port = await getFreePort();
+        const runtime = bridge.createBridgeRuntime({ port, maxPort: port });
+        try {
+            await waitUntil(() => runtime.listening);
+            expect(runtime.advertisedUrls).toEqual([`http://127.0.0.1:${port}/remote/`]);
+            expect(runtime.remoteUrl).toBe(`http://127.0.0.1:${port}/remote/`);
+            const response = await fetch(`http://127.0.0.1:${port}/remote/api/health`);
+            const health = (await response.json()) as Record<string, unknown>;
+            expect(health.ok).toBe(true);
+            expect(health.port).toBe(port);
+            expect(health.protocolVersion).toBe(1);
+            expect(health.installedAppsReady).toBe(false);
+            runtime.syncInstalledApps({ apps: [] });
+            const ready = await fetch(`http://127.0.0.1:${port}/remote/api/health`);
+            expect(((await ready.json()) as Record<string, unknown>).installedAppsReady).toBe(true);
+        } finally {
+            runtime.close();
+        }
+    });
+
+    it('reports the actual port after the preferred port is occupied', async () => {
+        const bridge = require('../../dist/bridge.cjs');
+        const blocker = createServer();
+        await new Promise<void>((resolve) => blocker.listen(0, '127.0.0.1', resolve));
+        const address = blocker.address();
+        if (!address || typeof address === 'string') throw new Error('No blocker address.');
+        const port = address.port;
+        const runtime = bridge.createBridgeRuntime({ port, maxPort: port + 30 });
+        try {
+            await waitUntil(() => runtime.listening);
+            const actual = new URL(runtime.remoteUrl);
+            expect(Number(actual.port)).toBeGreaterThan(port);
+            const health = await fetch(new URL('api/health', actual));
+            expect(((await health.json()) as Record<string, unknown>).port).toBe(
+                Number(actual.port),
+            );
+        } finally {
+            runtime.close();
+            await new Promise<void>((resolve) => blocker.close(() => resolve()));
+        }
+    });
+
     it('preserves the public API and sends cached snapshots after hello', async () => {
         const bridge = require('../../dist/bridge.cjs');
         expect(Object.keys(bridge).sort()).toEqual([

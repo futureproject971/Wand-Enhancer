@@ -16,7 +16,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      WG_VISION_LOADER_TOKEN: ${{ secrets.VISION_LOADER_TOKEN }}
+      WG_VISION_LOADER_TOKEN: ${{ secrets.VISION_LOADER_TOKEN || secrets.WG_VISION_LOADER_TOKEN }}
     permissions:
       contents: read
 
@@ -38,7 +38,7 @@ jobs:
         shell: pwsh
         run: |
           if ([string]::IsNullOrWhiteSpace($env:WG_VISION_LOADER_TOKEN)) {
-            throw "VISION_LOADER_TOKEN secret is missing or empty."
+            throw "VISION_LOADER_TOKEN or WG_VISION_LOADER_TOKEN repository secret is missing or empty."
           }
           Write-Host "Vision Auth loader token is present."
 
